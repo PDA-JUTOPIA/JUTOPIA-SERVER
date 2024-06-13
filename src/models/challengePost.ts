@@ -1,0 +1,40 @@
+import {
+  Model,
+  Column,
+  Table,
+  DataType,
+  ForeignKey,
+} from "sequelize-typescript";
+import { ChallengeParticipation } from "./challengeParticipation";
+
+@Table({
+  timestamps: true,
+  tableName: "Challenge_Post",
+})
+export class ChallengePost extends Model {
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  })
+  challenge_post_id!: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  challenge_post_text!: string;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+  })
+  challenge_post_date!: Date;
+
+  @ForeignKey(() => ChallengeParticipation)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  challenge_participation_id!: number;
+}
