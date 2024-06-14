@@ -22,7 +22,7 @@ app.use(cors());
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // 프론트엔드 서버의 주소를 여기에 넣습니다.
+    origin: "http://localhost:3001", // 프론트엔드 서버의 주소를 여기에 넣습니다.
   })
 );
 
@@ -33,8 +33,8 @@ app.get("/", async function (req, res) {
 });
 
 // 에러 핸들링 미들웨어
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
+app.use((err: `Error`, req: Request, res: Response, next: NextFunction) => {
+  // console.error(err.stack);
   res.status(500).send("Something broke!");
 });
 
