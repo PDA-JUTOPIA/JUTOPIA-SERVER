@@ -1,7 +1,6 @@
 import { Request, Response, response } from "express";
 import { User } from "../models/user";
 import { createToken, verifyToken } from "../utils/auth";
-import { Next } from "mysql2/typings/mysql/lib/parsers/typeCast";
 import bcrypt from "bcryptjs";
 
 export async function createUser(req: Request, res: Response) {
@@ -60,7 +59,9 @@ export const loginUser = async (req: Request, res: Response) => {
 
     // JWT 생성 및 반환
     const token = createToken({ user_id: user.user_id, email: user.email });
-    res.status(200).json({ token });
+    const username = user.username;
+
+    res.status(200).json({ token, username, email });
   } catch (error) {
     res.status(400).json({ message: "Failed to login", error });
   }
