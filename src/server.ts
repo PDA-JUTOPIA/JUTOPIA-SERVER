@@ -39,6 +39,7 @@ app.use((err: `Error`, req: Request, res: Response, next: NextFunction) => {
 });
 
 const PORT = process.env.PORT;
+const url = process.env.DB_HOST;
 
 const startServer = async () => {
   app.listen(PORT, async () => {
@@ -48,7 +49,7 @@ const startServer = async () => {
       console.error("Server startup failed:", error);
       return; // 데이터베이스 초기화 실패시 서버를 시작하지 않음
     }
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on ${url}:${PORT}`);
   });
 };
 
