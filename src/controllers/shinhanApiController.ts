@@ -3,7 +3,7 @@ import axios from "axios";
 import https from "https";
 import { Op } from "sequelize";
 import { ColumnBoard } from "../models/columnBoard";
-import { sequelize } from "../models";
+
 import logger from "../logger";
 import moment from "moment-timezone";
 
@@ -102,7 +102,9 @@ export const fetchAndStoreMarketIssues = async (): Promise<void> => {
           [Op.in]: allIssues.map((issue) => issue.title),
         },
         reg_date: {
-          [Op.in]: allIssues.map((issue) => issue.regDate),
+          [Op.in]: allIssues.map((issue) =>
+            moment(issue.regDate, "YYYY.MM.DD").toDate()
+          ), // 날짜 형식 변환
         },
       },
     });
@@ -133,7 +135,7 @@ export const fetchAndStoreMarketIssues = async (): Promise<void> => {
         bbs_name: issue.bbsName,
         title: issue.title,
         writer: issue.writer,
-        reg_date: issue.regDate,
+        reg_date: moment(issue.regDate, "YYYY.MM.DD").toDate(), // 날짜 형식 변환
         attachment_url: issue.attachmentUrl,
         content: issue.content,
       });
