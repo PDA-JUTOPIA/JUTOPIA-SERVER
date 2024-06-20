@@ -6,6 +6,7 @@ import logger from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
 import { initializeDatabase } from "./models";
+import "./schedulers/marketIssueScheduler";
 
 import apiRouter from "./routes";
 

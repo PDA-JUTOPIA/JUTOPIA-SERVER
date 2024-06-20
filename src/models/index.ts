@@ -56,3 +56,5 @@ export const initializeDatabase = async () => {
     throw error; // 에러를 던져서 서버 시작을 중단시킬 수 있음
   }
 };
+
+export { sequelize }; // 추가
