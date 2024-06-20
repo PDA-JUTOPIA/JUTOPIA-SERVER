@@ -66,3 +66,29 @@ export const loginUser = async (req: Request, res: Response) => {
     res.status(400).json({ message: "Failed to login", error });
   }
 };
+
+export async function readSinceJoinDate(req: Request, res: Response) {
+  try {
+    const { email } = req.params;
+
+    // 이미 등록된 이메일인지 확인
+    const existingUser = await User.findOne({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!existingUser) {
+      return res.status(400).json({ message: "User Not Found" });
+    }
+
+    const joinDate = new Date(existingUser.createdAt);
+    const currentDate = new Date();
+    const diffTime = Math.abs(currentDate.getTime() - joinDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    res.status(200).json({ daysSinceJoined: diffDays });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to calculate days since joined" });
+  }
+}
