@@ -8,7 +8,6 @@ export async function createUser(req: Request, res: Response) {
 
   try {
     const { username, email, password } = req.body;
-    console.log(username, email, password);
 
     // 비밀번호 암호화
     const hashedPassword = await bcrypt.hash(password, 10); // 10은 해시 라운드 수입니다.
@@ -30,7 +29,7 @@ export async function createUser(req: Request, res: Response) {
       email,
       password: hashedPassword,
     });
-    res.status(201).json(user);
+    res.status(201).json({ username: user.username, email: user.email });
   } catch (error) {
     res.status(400).json({ message: "Failed to register user", error });
   }
@@ -90,5 +89,27 @@ export async function readSinceJoinDate(req: Request, res: Response) {
     res.status(200).json({ daysSinceJoined: diffDays });
   } catch (error) {
     res.status(500).json({ error: "Failed to calculate days since joined" });
+  }
+}
+
+export async function updateUsername(req: Request, res: Response) {
+  try {
+    const { newName, email } = req.body;
+
+    const existingUser = await User.findOne({
+      where: {
+        email: email,
+      },
+    });
+    if (!existingUser) {
+      return res.status(400).json({ message: "User Not Found" });
+    }
+
+    existingUser.username = newName;
+    await existingUser.save();
+
+    res.status(200).json({ newName: existingUser.username });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update Username" });
   }
 }
