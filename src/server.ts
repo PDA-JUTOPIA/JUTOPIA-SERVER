@@ -23,7 +23,7 @@ app.use(cors());
 
 app.use(
   cors({
-    origin: "http://localhost:3001", // 프론트엔드 서버의 주소를 여기에 넣습니다.
+    origin: "http://localhost:3000", // 프론트엔드 서버의 주소를 여기에 넣습니다.
   })
 );
 
@@ -42,6 +42,7 @@ app.use((err: `Error`, req: Request, res: Response, next: NextFunction) => {
 });
 
 const PORT = process.env.PORT;
+const url = process.env.DB_HOST;
 
 const startServer = async () => {
   app.listen(PORT, async () => {
@@ -51,7 +52,7 @@ const startServer = async () => {
       console.error("Server startup failed:", error);
       return; // 데이터베이스 초기화 실패시 서버를 시작하지 않음
     }
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on ${url}:${PORT}`);
   });
 };
 
