@@ -6,7 +6,6 @@ import logger from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
 import { initializeDatabase } from "./models";
-import marketIssueRouter from "./routes/marketIssues";
 
 import apiRouter from "./routes";
 
@@ -28,8 +27,6 @@ app.use(
 );
 
 app.use("/api", apiRouter);
-
-app.use("/shinhan/market-issue", marketIssueRouter); // '/shinhan/market-issue' 라우트를 marketIssueRouter로 설정
 
 app.get("/", async function (req, res) {
   res.send("Hello World!");
