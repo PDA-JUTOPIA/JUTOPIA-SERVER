@@ -37,6 +37,7 @@ jobs:
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "API_KEY_VALUE=${{ secrets.SHINHAN_API_KEY }}" >> .env
 
       # Build step removed since there is no build script
       - name: Copy files via SSH
