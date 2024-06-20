@@ -3,6 +3,7 @@ import {
   createUser,
   loginUser,
   readSinceJoinDate,
+  updateUsername,
 } from "../controllers/UserController";
 const router = Router();
 
@@ -14,5 +15,6 @@ router.get("/", function (req, res, next) {
 router.post("/signup", createUser);
 router.post("/login", loginUser);
 router.get("/days/email/:email", readSinceJoinDate);
+router.put("/updateName", updateUsername);
 
 export default router;
