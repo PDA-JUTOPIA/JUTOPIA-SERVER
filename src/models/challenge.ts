@@ -16,6 +16,12 @@ export class Challenge extends Model {
     type: DataType.STRING,
     allowNull: false,
   })
+  challenge_name!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
   challenge_detail!: string;
 
   @Column({
