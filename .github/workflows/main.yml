@@ -38,6 +38,9 @@ jobs:
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "API_KEY_VALUE=${{ secrets.SHINHAN_API_KEY }}" >> .env
+          echo "KOREAINVESTMENT_APP_KEY=${{ secrets.KOREAINVESTMENT_APP_KEY }}" >> .env
+          echo "KOREAINVESTMENT_APP_SECRET=${{ secrets.KOREAINVESTMENT_APP_SECRET }}" >> .env
+          echo "KOREAINVESTMENT_AUTHORIZATION=${{ secrets.KOREAINVESTMENT_AUTHORIZATION }}" >> .env
 
       # Build step removed since there is no build script
       - name: Copy files via SSH
