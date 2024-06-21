@@ -7,6 +7,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { initializeDatabase } from "./models";
 import "./schedulers/marketIssueScheduler";
+import "./schedulers/koreaninvestmentScheduler";
 
 import apiRouter from "./routes";
 

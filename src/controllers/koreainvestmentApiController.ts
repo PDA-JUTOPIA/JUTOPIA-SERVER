@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import axios from "axios";
 import https from "https";
+import fs from "fs";
 
 const instance = axios.create({
   httpsAgent: new https.Agent({
@@ -10,7 +11,7 @@ const instance = axios.create({
 
 const appKey = process.env.KOREAINVESTMENT_APP_KEY as string;
 const appSecret = process.env.KOREAINVESTMENT_APP_SECRET as string;
-const authorization = process.env.KOREAINVESTMENT_AUTHORIZATION as string;
+const authorization = fs.readFileSync("./token.dat", "utf-8");
 
 if (!appKey) {
   throw new Error(
