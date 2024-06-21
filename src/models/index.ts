@@ -10,6 +10,7 @@ import { ChallengePostComment } from "./challengePostComment";
 import { Reward } from "./reward";
 import { UserReward } from "./userReward";
 import { UserCurrentLearning } from "./userCurrentLearning";
+import { ColumnBoard } from "./columnBoard";
 
 import sequelize from "../config/db";
 import { Sequelize } from "sequelize-typescript";
@@ -41,6 +42,7 @@ sequelize.addModels([
   Reward,
   UserReward,
   UserCurrentLearning,
+  ColumnBoard,
 ]);
 
 export const initializeDatabase = async () => {
@@ -54,3 +56,5 @@ export const initializeDatabase = async () => {
     throw error; // 에러를 던져서 서버 시작을 중단시킬 수 있음
   }
 };
+
+export { sequelize }; // 추가
