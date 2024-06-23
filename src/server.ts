@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 import { initializeDatabase } from "./models";
 import "./schedulers/marketIssueScheduler";
 import "./schedulers/koreaninvestmentScheduler";
-
+import compression from "compression";
 import apiRouter from "./routes";
 
 dotenv.config();
@@ -21,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
+app.use(compression());
 
 app.use(
   cors({
