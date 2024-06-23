@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import axios from "axios";
 import https from "https";
 import fs from "fs";
+const SSE = require("express-sse");
 
 const instance = axios.create({
   httpsAgent: new https.Agent({
@@ -29,19 +30,34 @@ if (!authorization) {
   );
 }
 
+const sse = new SSE();
+let previousData: any = {};
+
+interface StockParams {
+  FID_COND_MRKT_DIV_CODE: string;
+  FID_INPUT_ISCD: string;
+}
+
+interface StockResponse {
+  [key: string]: any;
+}
+
 export const getDomesticStock = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  try {
-    const paramsList = [
-      { FID_COND_MRKT_DIV_CODE: "U", FID_INPUT_ISCD: "0001" }, //코스피
-      { FID_COND_MRKT_DIV_CODE: "U", FID_INPUT_ISCD: "1001" }, //코스닥
-      { FID_COND_MRKT_DIV_CODE: "U", FID_INPUT_ISCD: "2001" }, //코스피200
-    ];
-    const requests = paramsList.map((param) =>
-      instance
-        .get(
+  sse.init(req, res);
+  let isFirstConnection = true;
+  const paramsList: StockParams[] = [
+    { FID_COND_MRKT_DIV_CODE: "U", FID_INPUT_ISCD: "0001" }, //코스피
+    { FID_COND_MRKT_DIV_CODE: "U", FID_INPUT_ISCD: "1001" }, //코스닥
+    { FID_COND_MRKT_DIV_CODE: "U", FID_INPUT_ISCD: "2001" }, //코스피200
+  ];
+
+  const fetchData = async () => {
+    try {
+      const requests = paramsList.map((param) =>
+        instance.get<StockResponse>(
           "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-index-price",
           {
             headers: {
@@ -55,17 +71,37 @@ export const getDomesticStock = async (
             params: param,
           }
         )
-        .then((response) => ({
-          [param.FID_INPUT_ISCD]: response.data,
-        }))
-    );
-    const koreainvestmentResponses = await Promise.all(requests);
-    const responseData = Object.assign({}, ...koreainvestmentResponses);
-    res.json(responseData);
-  } catch (error) {
-    console.error("Error fetching data from Koreainvestment API", error);
-    res
-      .status(500)
-      .json({ error: "Error fetching data from Koreainvestment API" });
+      );
+      const responses = await Promise.all(requests);
+      const responseData = responses.reduce((acc, response, index) => {
+        const key = paramsList[index].FID_INPUT_ISCD;
+        acc[key] = response.data;
+        return acc;
+      }, {} as StockResponse);
+
+      // 첫 연결이거나 데이터가 변경된 경우에만 전송
+      if (isFirstConnection || hasDataChanged(responseData)) {
+        sse.send(responseData);
+        previousData = { ...responseData };
+        isFirstConnection = false;
+      }
+    } catch (error) {
+      console.error("Error fetching data from Koreainvestment API", error);
+      res
+        .status(500)
+        .json({ error: "Error fetching data from Koreainvestment API" });
+    }
+  };
+
+  fetchData();
+  const intervalId = setInterval(fetchData, 1000);
+  req.on("close", () => clearInterval(intervalId));
+};
+
+const hasDataChanged = (currentData: StockResponse): boolean => {
+  for (const key in currentData) {
+    if (JSON.stringify(currentData[key]) !== JSON.stringify(previousData[key]))
+      return true;
   }
+  return false;
 };
