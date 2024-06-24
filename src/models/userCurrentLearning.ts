@@ -1,5 +1,11 @@
-import { Model, Column, Table, DataType } from "sequelize-typescript";
-
+import {
+  Model,
+  Column,
+  Table,
+  DataType,
+  ForeignKey,
+} from "sequelize-typescript";
+import { User } from "./user";
 @Table({
   timestamps: true,
   tableName: "User_Current_Learning",
@@ -19,8 +25,15 @@ export class UserCurrentLearning extends Model {
   completeDate!: Date;
 
   @Column({
-    type: DataType.FLOAT,
+    type: DataType.INTEGER,
     allowNull: false,
   })
   current_learning!: number;
+
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  user_id!: number;
 }
