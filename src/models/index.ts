@@ -3,7 +3,6 @@ import { Challenge } from "./challenge";
 import { Problem } from "./problem";
 import { UserProblem } from "./userProblem";
 import { ChallengeParticipation } from "./challengeParticipation";
-import { ChallengeReview } from "./challengeReview";
 import { ChallengePost } from "./challengePost";
 import { PostPhoto } from "./postPhoto";
 import { ChallengePostComment } from "./challengePostComment";
@@ -35,7 +34,6 @@ sequelize.addModels([
   Problem,
   UserProblem,
   ChallengeParticipation,
-  ChallengeReview,
   ChallengePost,
   PostPhoto,
   ChallengePostComment,
