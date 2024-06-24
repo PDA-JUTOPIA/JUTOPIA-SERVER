@@ -20,3 +20,5 @@ export async function readAllRecurit(req: Request, res: Response) {
     res.status(400).json({ message: "Failed to login", error });
   }
 }
+
+export async function createRecurit(req: Request, res: Response) {}
