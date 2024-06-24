@@ -3,36 +3,25 @@ import { User } from "../models/user";
 import { UserCurrentLearning } from "../models/userCurrentLearning";
 
 //create
-export async function createUserCurrentLearning(req: Request, res: Response) {
-  console.log(req.body);
+export async function createUserCurrentLearning(email: string) {
+  const existingUser = await User.findOne({
+    where: {
+      email: email,
+    },
+  });
 
-  try {
-    const { email } = req.body;
-
-    const existingUser = await User.findOne({
-      where: {
-        email: email,
-      },
-    });
-
-    if (!existingUser) {
-      return res.status(400).json({ message: "User Not Found" });
-    }
-
-    const currentDate = new Date();
-    const userCurrentLearning = await UserCurrentLearning.create({
-      completeDate: currentDate,
-      current_learning: 0, //lessonCompleted
-      user_id: existingUser.user_id,
-    });
-    res
-      .status(201)
-      .json({ current_learning: userCurrentLearning.current_learning });
-  } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Failed to create user_current_learning", error });
+  if (!existingUser) {
+    throw new Error("User Not Found");
   }
+
+  const currentDate = new Date();
+  const userCurrentLearning = await UserCurrentLearning.create({
+    completeDate: currentDate,
+    current_learning: 0, // lessonCompleted
+    user_id: existingUser.user_id,
+  });
+
+  return userCurrentLearning;
 }
 
 //조회
@@ -49,23 +38,34 @@ export async function readUserCurrentLearning(req: Request, res: Response) {
       return res.status(400).json({ message: "User Not Found" });
     }
 
-    const userCurrentLearning = await UserCurrentLearning.findOne({
+    let userCurrentLearning = await UserCurrentLearning.findOne({
       where: {
         user_id: existingUser.user_id,
       },
     });
 
+    // userCurrentLearning 데이터가 없는 경우 생성
     if (!userCurrentLearning) {
-      return res.status(404).json({ message: "UserCurrentLearning Not Found" });
+      userCurrentLearning = await createUserCurrentLearning(email);
     }
+
     res
       .status(200)
       .json({ userCurrentLearning: userCurrentLearning.current_learning });
   } catch (error) {
-    res.status(500).json({ error: "Failed to read user_current_learning" });
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: "Failed to read user_current_learning",
+        message: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: "Failed to read user_current_learning",
+        message: "An unknown error occurred",
+      });
+    }
   }
 }
-
 //update
 export async function updateUserCurrentLearning(req: Request, res: Response) {
   try {
