@@ -46,7 +46,7 @@ export const getDomesticStock = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  sse.init(req, res);
+  sse.init(req, res); // SSE 초기화, 이 후에 res 객체를 직접 사용하지 않습니다.
   let isFirstConnection = true;
   const paramsList: StockParams[] = [
     { FID_COND_MRKT_DIV_CODE: "U", FID_INPUT_ISCD: "0001" }, //코스피
@@ -87,14 +87,13 @@ export const getDomesticStock = async (
       }
     } catch (error) {
       console.error("Error fetching data from Koreainvestment API", error);
-      res
-        .status(500)
-        .json({ error: "Error fetching data from Koreainvestment API" });
+      // res 객체를 직접 사용하지 않고 SSE 스트림을 통해 오류 메시지를 전송합니다.
+      sse.send({ error: "Error fetching data from Koreainvestment API" });
     }
   };
 
   fetchData();
-  const intervalId = setInterval(fetchData, 1000);
+  const intervalId = setInterval(fetchData, 3000);
   req.on("close", () => clearInterval(intervalId));
 };
 
