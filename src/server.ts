@@ -25,7 +25,12 @@ app.use(compression());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"], // 프론트엔드 서버의 주소를 여기에 넣습니다.
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://52.78.236.23",
+      "http://jutopia.site",
+    ], // 프론트엔드 서버의 주소를 여기에 넣습니다.
   })
 );
 
