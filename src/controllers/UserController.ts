@@ -136,10 +136,17 @@ async function getUserIdByEmail(email: string): Promise<number | null> {
 // 이메일로 사용자 ID 조회
 export async function getUserId(req: Request, res: Response) {
   try {
-    const { email } = req.params;
+    const { email } = req.body;
+    console.log(req.body);
+    if (typeof email !== "string") {
+      return res.status(400).json({ message: "Invalid email parameter" });
+    }
+
     const userId = await getUserIdByEmail(email);
+    console.log(`---------------${userId}, ${email}----------`);
 
     if (userId) {
+      console.log(`${userId}, ${email}`);
       res.status(200).json({ userId });
     } else {
       res.status(404).json({ message: "User not found" });
@@ -148,3 +155,4 @@ export async function getUserId(req: Request, res: Response) {
     res.status(500).json({ error: "Failed to fetch user ID" });
   }
 }
+export { getUserIdByEmail };
