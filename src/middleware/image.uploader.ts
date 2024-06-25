@@ -33,6 +33,9 @@ export const imageUploader = multer({
       const uploadDirectory = req.query.directory ?? ""; // 디렉토리 path 설정을 위해서
       const extension = path.extname(file.originalname); // 파일 이름 얻어오기
       const uuid = createUUID(); // UUID 생성
+      console.log(uploadDirectory);
+      console.log(extension);
+      console.log(uuid);
 
       // extension 확인을 위한 코드 (확장자 검사용)
       if (!allowedExtensions.includes(extension)) {
@@ -40,7 +43,7 @@ export const imageUploader = multer({
       }
       callback(null, `${uploadDirectory}/${uuid}_${file.originalname}`);
     },
-    acl: "public-read-write", // 파일 액세스 권한
+    // acl: "public-read-write", // 파일 액세스 권한
   }),
   // 이미지 용량 제한 (20MB)
   limits: { fileSize: 20 * 1024 * 1024 },
