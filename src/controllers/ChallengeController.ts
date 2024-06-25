@@ -1,7 +1,35 @@
 import { Request, Response, NextFunction } from "express";
 import { Challenge } from "../models/challenge";
 import { Op } from "sequelize";
-import { imageUploader } from "../middleware/image.uploader";
+import { getChallengesByEmail } from "./ChallengeParticipation";
+
+export async function readChallengeByChallengeIds(req: Request, res: Response) {
+  try {
+    const { email } = req.body;
+    if (typeof email !== "string") {
+      return res.status(400).json({ message: "Invalid email parameter" });
+    }
+
+    // getChallengesByEmail 함수 호출하여 챌린지 ID 배열 얻기
+    const challengeIds = await getChallengesByEmail(email);
+    if (challengeIds.length === 0) {
+      return res.status(404).json({ message: "No challenges found" });
+    }
+
+    // 챌린지 ID 배열을 사용하여 챌린지 객체들 조회
+    const challenges = await Challenge.findAll({
+      where: {
+        challenge_id: {
+          [Op.in]: challengeIds,
+        },
+      },
+    });
+
+    res.status(200).json(challenges);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch challenges", error });
+  }
+}
 
 export async function readAllRecurit(req: Request, res: Response) {
   try {
@@ -33,7 +61,6 @@ export const setChallengeDirectory = (
 };
 
 export async function createRecurit(req: Request, res: Response) {
-  console.log("!1111111");
   try {
     let pictureUrls: string[] = [];
     if (Array.isArray(req.files) && req.files.length > 0) {
@@ -43,6 +70,7 @@ export async function createRecurit(req: Request, res: Response) {
     } else {
       return res.status(400).send("IMAGE_NOT_EXIST");
     }
+    console.log(req.body);
     const {
       challenge_name,
       challenge_detail,
@@ -64,7 +92,7 @@ export async function createRecurit(req: Request, res: Response) {
       challenge_end,
     });
 
-    res.status(201).json(newChallenge);
+    res.status(201).json({ result: "ok" });
   } catch (error) {
     res.status(500).json({ message: "Failed to create challenge", error });
   }

@@ -3,18 +3,16 @@ import { ChallengeParticipation } from "../models/challengeParticipation";
 import { getUserIdByEmail } from "./UserController";
 
 // 이메일을 통해 참여중인 challenge_id를 조회 => 배열로 리턴
-export async function getChallengesByEmail(req: Request, res: Response) {
+export async function getChallengesByEmail(email: string): Promise<number[]> {
   try {
-    const { email } = req.body;
     if (typeof email !== "string") {
-      return res.status(400).json({ message: "Invalid email parameter" });
+      throw new Error("Invalid email parameter");
     }
 
     const userId = await getUserIdByEmail(email);
-    console.log(userId);
 
     if (!userId) {
-      return res.status(404).json({ message: "User not found" });
+      throw new Error("User not found");
     }
 
     const challenges = await ChallengeParticipation.findAll({
@@ -23,8 +21,35 @@ export async function getChallengesByEmail(req: Request, res: Response) {
     });
 
     const challengeIds = challenges.map((challenge) => challenge.challenge_id);
-    res.status(200).json({ challengeIds });
+    return challengeIds;
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch challenge IDs" });
+    throw new Error("Failed to fetch challenge IDs");
+  }
+}
+
+export async function joinChallenge(req: Request, res: Response) {
+  try {
+    const { email, challengeId } = req.body;
+    const userId = await getUserIdByEmail(email);
+
+    if (!userId) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const cp = await ChallengeParticipation.create({
+      is_challenge_end: false,
+      challenge_participation_count: 0,
+      user_id: userId,
+      challenge_id: challengeId,
+    });
+
+    res.status(201).json({
+      is_challenge_end: cp.is_challenge_end,
+      challenge_participation_count: cp.challenge_participation_count,
+      user_id: cp.user_id,
+      challenge_id: cp.challenge_id,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to join challenge" });
   }
 }
