@@ -113,3 +113,38 @@ export async function updateUsername(req: Request, res: Response) {
     res.status(500).json({ error: "Failed to update Username" });
   }
 }
+
+// 사용자 ID 조회 함수
+async function getUserIdByEmail(email: string): Promise<number | null> {
+  try {
+    const user = await User.findOne({
+      where: { email: email },
+      attributes: ["user_id"],
+    });
+
+    if (user) {
+      return user.user_id;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user by email:", error);
+    throw error;
+  }
+}
+
+// 이메일로 사용자 ID 조회
+export async function getUserId(req: Request, res: Response) {
+  try {
+    const { email } = req.params;
+    const userId = await getUserIdByEmail(email);
+
+    if (userId) {
+      res.status(200).json({ userId });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch user ID" });
+  }
+}
