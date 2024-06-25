@@ -33,9 +33,6 @@ export const imageUploader = multer({
       const uploadDirectory = req.query.directory ?? ""; // 디렉토리 path 설정을 위해서
       const extension = path.extname(file.originalname); // 파일 이름 얻어오기
       const uuid = createUUID(); // UUID 생성
-      console.log(uploadDirectory);
-      console.log(extension);
-      console.log(uuid);
 
       // extension 확인을 위한 코드 (확장자 검사용)
       if (!allowedExtensions.includes(extension)) {
