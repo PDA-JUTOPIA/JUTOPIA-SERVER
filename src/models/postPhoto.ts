@@ -27,7 +27,7 @@ export class PostPhoto extends Model {
   challenge_post_id!: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(1024),
     allowNull: false,
   })
   post_photo_url!: string;

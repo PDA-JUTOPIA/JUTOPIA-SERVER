@@ -25,7 +25,7 @@ export class Challenge extends Model {
   challenge_detail!: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(1024),
     allowNull: false,
   })
   challenge_thumbnail!: string;
