@@ -89,3 +89,31 @@ export async function getParticipationId(req: Request, res: Response) {
       .json({ error: "Failed to fetch challenge participation IDs" });
   }
 }
+
+// challenge_participation_id를 통해 user_id를 조회하여 리턴
+export async function getUserIdByParticipationId(req: Request, res: Response) {
+  try {
+    const { challenge_participation_id } = req.body;
+
+    if (typeof challenge_participation_id !== "number") {
+      return res
+        .status(400)
+        .json({ message: "Invalid challenge_participation_id parameter" });
+    }
+
+    const participation = await ChallengeParticipation.findOne({
+      where: { challenge_participation_id },
+      attributes: ["user_id"],
+    });
+
+    if (!participation) {
+      return res.status(404).json({ message: "Participation not found" });
+    }
+
+    res.status(200).json({ user_id: participation.user_id });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to fetch user ID by participation ID" });
+  }
+}

@@ -2,13 +2,14 @@ import { Router } from "express";
 import {
   createChallengePost,
   setChallengePostDirectory,
+  deleteChallengePost,
 } from "../controllers/ChallengePostController";
 import { imageUploader } from "../middleware/image.uploader";
 
 const router = Router();
 
 router.post(
-  "/:challengeId/add-post",
+  "/add-post",
   (req, res, next) => {
     console.log("setChallengePostDirectory 미들웨어 실행");
     setChallengePostDirectory(req, res, next);
@@ -26,12 +27,13 @@ router.post(
     });
   },
   (req, res, next) => {
-    console.log("Request Params:", req.params);
     console.log("Request Body:", req.body);
     console.log("Request Files:", req.files);
     next();
   },
   createChallengePost
 );
+
+router.delete("/del-post/:postId/:email", deleteChallengePost);
 
 export default router;
