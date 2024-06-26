@@ -3,6 +3,7 @@ import {
   createChallengePost,
   setChallengePostDirectory,
   deleteChallengePost,
+  getPostIdsByEmailAndChallenge,
 } from "../controllers/ChallengePostController";
 import { imageUploader } from "../middleware/image.uploader";
 
@@ -35,5 +36,10 @@ router.post(
 );
 
 router.delete("/del-post/:postId/:email", deleteChallengePost);
+
+router.get(
+  "/get-user-post/:challenge_id/:email",
+  getPostIdsByEmailAndChallenge
+);
 
 export default router;
