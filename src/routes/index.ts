@@ -9,6 +9,7 @@ import columnboard from "./columnBoard";
 import koreainvestment from "./koreainvestmentApi";
 
 import currentLearning from "./userCurrentLearning";
+import challengePostComment from "./challengePostComment";
 
 // const apiRouter = (app: Application): void => {
 //   app.use("/users", users);
@@ -21,6 +22,7 @@ apiRouter.use("/challenge", challenge);
 apiRouter.use("/challenge", challengeParticipation);
 apiRouter.use("/challenge-detail", challengePost);
 apiRouter.use("/shinhan", shinhan);
+apiRouter.use("/challenge/comment", challengePostComment);
 
 apiRouter.use("/columnboard", columnboard);
 apiRouter.use("/koreainvestment", koreainvestment);

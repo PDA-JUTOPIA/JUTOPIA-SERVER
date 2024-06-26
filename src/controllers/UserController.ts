@@ -4,8 +4,6 @@ import { createToken, verifyToken } from "../utils/auth";
 import bcrypt from "bcryptjs";
 
 export async function createUser(req: Request, res: Response) {
-  console.log(req.body);
-
   try {
     const { username, email, password } = req.body;
 
