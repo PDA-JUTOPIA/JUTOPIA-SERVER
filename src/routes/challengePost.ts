@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createChallengePost,
   setChallengePostDirectory,
+  deleteChallengePost,
 } from "../controllers/ChallengePostController";
 import { imageUploader } from "../middleware/image.uploader";
 
@@ -33,5 +34,7 @@ router.post(
   },
   createChallengePost
 );
+
+router.delete("/:challengeId/delete-post/:postId", deleteChallengePost);
 
 export default router;
