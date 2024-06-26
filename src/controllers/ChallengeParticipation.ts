@@ -2,6 +2,26 @@ import { Request, Response } from "express";
 import { ChallengeParticipation } from "../models/challengeParticipation";
 import { getUserIdByEmail } from "./UserController";
 
+export async function checkIsUserInChallenge(req: Request, res: Response) {
+  try {
+    const { userId } = req.params;
+
+    const cp = await ChallengeParticipation.findOne({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    if (!cp) {
+      res.status(200).json({ status: false });
+    } else {
+      res.status(200).json({ status: true });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to read challenge" });
+  }
+}
+
 // 이메일을 통해 참여중인 challenge_id를 조회 => 배열로 리턴
 export async function getChallengesByEmail(email: string): Promise<number[]> {
   try {
