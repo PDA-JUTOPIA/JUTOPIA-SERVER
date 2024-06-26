@@ -14,9 +14,6 @@ export async function createUserReward(req: Request, res: Response) {
     throw new Error("User Not Found");
   }
 
-  console.log("user id: ", existingUser.user_id);
-  console.log("reward_id: ", reward_id);
-
   const currentDate = new Date();
   const userReward = await UserReward.create({
     user_reward_date: currentDate,
