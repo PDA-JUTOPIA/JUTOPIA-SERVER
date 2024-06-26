@@ -11,6 +11,9 @@ import koreainvestment from "./koreainvestmentApi";
 import currentLearning from "./userCurrentLearning";
 import challengePostComment from "./challengePostComment";
 
+import userReward from "./userReward";
+import reward from "./reward";
+
 // const apiRouter = (app: Application): void => {
 //   app.use("/users", users);
 // };
@@ -29,4 +32,6 @@ apiRouter.use("/koreainvestment", koreainvestment);
 
 apiRouter.use("/currentLearning", currentLearning);
 
+apiRouter.use("/userReward", userReward);
+apiRouter.use("/reward", reward);
 export default apiRouter;

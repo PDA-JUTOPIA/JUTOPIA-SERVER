@@ -3,10 +3,10 @@ import {
   createUserCurrentLearning,
   updateUserCurrentLearning,
   readUserCurrentLearning,
+  updateUserCurrentReward,
 } from "../controllers/UserCurrentLearningController";
 const router = Router();
 
-/* GET users listing. */
 router.get("/", function (req, res, next) {
   res.send("respond with a resource");
 });
@@ -14,5 +14,6 @@ router.get("/", function (req, res, next) {
 router.post("/create", createUserCurrentLearning);
 router.get("/:email", readUserCurrentLearning);
 router.put("/update", updateUserCurrentLearning);
+router.put("/update/reward", updateUserCurrentReward);
 
 export default router;
