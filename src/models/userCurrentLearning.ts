@@ -30,6 +30,12 @@ export class UserCurrentLearning extends Model {
   })
   current_learning!: number;
 
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  current_reward!: number;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
