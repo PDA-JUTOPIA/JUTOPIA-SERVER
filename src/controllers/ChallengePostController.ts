@@ -36,7 +36,10 @@ export async function createChallengePost(req: Request, res: Response) {
         challenge_id: challenge_id,
         user_id: userId,
       },
-      attributes: ["challenge_participation_id"],
+      attributes: [
+        "challenge_participation_id",
+        "challenge_participation_count",
+      ],
     });
 
     if (!participation) {
@@ -74,6 +77,10 @@ export async function createChallengePost(req: Request, res: Response) {
           { transaction }
         );
       }
+
+      // challenge_participation_count 증가
+      participation.challenge_participation_count += 1;
+      await participation.save({ transaction });
 
       // 트랜잭션 커밋
       await transaction.commit();
@@ -169,12 +176,17 @@ export async function deleteChallengePost(req: Request, res: Response) {
         transaction,
       });
 
-      // 트랜잭션 커밋
-      await transaction.commit();
-
       if (deleteResult === 0) {
+        await transaction.rollback(); // 삭제 실패 시 트랜잭션 롤백
         return res.status(404).json({ message: "Challenge post not found" });
       }
+
+      // challenge_participation_count 감소
+      participation.challenge_participation_count -= 1;
+      await participation.save({ transaction });
+
+      // 트랜잭션 커밋
+      await transaction.commit();
 
       res.status(200).json({
         message: "Challenge post deleted successfully",
