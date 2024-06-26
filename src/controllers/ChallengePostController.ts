@@ -4,6 +4,7 @@ import { PostPhoto } from "../models/postPhoto";
 import { ChallengeParticipation } from "../models/challengeParticipation";
 import { sequelize } from "../models";
 import { getUserIdByEmail } from "./UserController"; // 사용자 이메일을 통해 user_id를 찾는 함수 import
+import { getParticipationIdByChallengeId } from "./ChallengeParticipation";
 
 export const setChallengePostDirectory = (
   req: Request,
@@ -262,6 +263,55 @@ export async function getPostIdsByEmailAndChallenge(
     const posts = await ChallengePost.findAll({
       where: {
         challenge_participation_id: challengeParticipationId,
+      },
+      attributes: ["challenge_post_id"],
+      order: [["createdAt", "DESC"]],
+    });
+
+    const postIds = posts.map((post) => post.challenge_post_id);
+
+    res.status(200).json({
+      message: "Post IDs retrieved successfully",
+      postIds: postIds,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log("Error:", error.message);
+      res.status(500).json({
+        error: "Failed to retrieve post IDs",
+        details: error.message,
+      });
+    } else {
+      console.log("Error:", error);
+      res.status(500).json({
+        error: "Failed to retrieve post IDs",
+        details: String(error),
+      });
+    }
+  }
+}
+
+// 챌린지에 있는 전체 포스트 ID 조회하는 API 엔드포인트
+export async function getPostIdsByChallengeId(req: Request, res: Response) {
+  try {
+    const { challenge_id } = req.params;
+    console.log("Challenge ID:", challenge_id);
+
+    // challengeId를 통해 모든 challengeParticipationId 조회
+    const challengeParticipationIds = await getParticipationIdByChallengeId(
+      Number(challenge_id)
+    );
+
+    if (challengeParticipationIds.length === 0) {
+      return res.status(404).json({
+        message: "No challenge participation found for this challenge ID",
+      });
+    }
+
+    // ChallengePost 테이블에서 challengeParticipationId 배열에 해당하는 모든 행 조회 (createdAt 순으로 내림차순 정렬)
+    const posts = await ChallengePost.findAll({
+      where: {
+        challenge_participation_id: challengeParticipationIds,
       },
       attributes: ["challenge_post_id"],
       order: [["createdAt", "DESC"]],

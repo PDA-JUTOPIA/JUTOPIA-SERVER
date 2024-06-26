@@ -4,6 +4,7 @@ import {
   setChallengePostDirectory,
   deleteChallengePost,
   getPostIdsByEmailAndChallenge,
+  getPostIdsByChallengeId,
 } from "../controllers/ChallengePostController";
 import { imageUploader } from "../middleware/image.uploader";
 
@@ -41,5 +42,7 @@ router.get(
   "/get-user-post/:challenge_id/:email",
   getPostIdsByEmailAndChallenge
 );
+
+router.get("/get-all-post/:challenge_id", getPostIdsByChallengeId);
 
 export default router;
