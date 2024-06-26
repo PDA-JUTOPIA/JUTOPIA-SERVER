@@ -15,7 +15,7 @@ export const setChallengePostDirectory = (
   next();
 };
 
-// API 엔드포인트
+// 포스팅 생성 API 엔드포인트
 export async function createChallengePost(req: Request, res: Response) {
   console.log("test");
   try {
@@ -78,7 +78,10 @@ export async function createChallengePost(req: Request, res: Response) {
       // 트랜잭션 커밋
       await transaction.commit();
 
-      res.status(201).json({ message: "Challenge post created successfully" });
+      res.status(201).json({
+        message: "Challenge post created successfully",
+        post: challengePost,
+      });
     } catch (error) {
       await transaction.rollback(); // 챌린지 포스트 생성 실패 시 트랜잭션 롤백
       if (error instanceof Error) {
@@ -173,7 +176,10 @@ export async function deleteChallengePost(req: Request, res: Response) {
         return res.status(404).json({ message: "Challenge post not found" });
       }
 
-      res.status(200).json({ message: "Challenge post deleted successfully" });
+      res.status(200).json({
+        message: "Challenge post deleted successfully",
+        deletedPostId: postId,
+      });
     } catch (error) {
       await transaction.rollback(); // 삭제 실패 시 트랜잭션 롤백
       if (error instanceof Error) {
