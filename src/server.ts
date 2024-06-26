@@ -10,14 +10,15 @@ import "./schedulers/marketIssueScheduler";
 import "./schedulers/koreaninvestmentScheduler";
 import compression from "compression";
 import apiRouter from "./routes";
+import bodyParser from "body-parser";
 
 dotenv.config();
 
 const app: Application = express();
 
 app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
