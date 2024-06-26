@@ -117,3 +117,19 @@ export async function getUserIdByParticipationId(req: Request, res: Response) {
       .json({ error: "Failed to fetch user ID by participation ID" });
   }
 }
+
+// challenge_id를 통해 참여중인 challenge_participation_id를 조회 => 배열로 리턴
+export async function getParticipationIdByChallengeId(
+  challenge_id: number
+): Promise<number[]> {
+  const participations = await ChallengeParticipation.findAll({
+    where: {
+      challenge_id: challenge_id,
+    },
+    attributes: ["challenge_participation_id"],
+  });
+
+  return participations.map(
+    (participation) => participation.challenge_participation_id
+  );
+}
