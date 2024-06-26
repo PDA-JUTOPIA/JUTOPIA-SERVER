@@ -4,11 +4,12 @@ import { getUserIdByEmail } from "./UserController";
 
 export async function checkIsUserInChallenge(req: Request, res: Response) {
   try {
-    const { userId } = req.params;
+    const { userId, challengeId } = req.params;
 
     const cp = await ChallengeParticipation.findOne({
       where: {
         user_id: userId,
+        challenge_id: challengeId,
       },
     });
 
