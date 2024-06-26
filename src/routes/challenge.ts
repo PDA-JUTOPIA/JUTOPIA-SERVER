@@ -4,6 +4,7 @@ import {
   createRecurit,
   setChallengeDirectory,
   readChallengeByChallengeIds,
+  readChallenge,
 } from "../controllers/ChallengeController";
 import { imageUploader } from "../middleware/image.uploader";
 import { Request, Response, NextFunction } from "express";
@@ -13,6 +14,7 @@ const router = Router();
 router.get("/", function (req, res, next) {
   res.send("respond with a resource");
 });
+router.get("/readChallenge/challengeId/:challengeId", readChallenge);
 router.get("/readAllRecurit", readAllRecurit);
 router.post("/joinChallengeList", readChallengeByChallengeIds);
 

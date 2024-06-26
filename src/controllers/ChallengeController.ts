@@ -3,6 +3,26 @@ import { Challenge } from "../models/challenge";
 import { Op } from "sequelize";
 import { getChallengesByEmail } from "./ChallengeParticipation";
 
+export async function readChallenge(req: Request, res: Response) {
+  try {
+    const { challengeId } = req.params;
+
+    const result = await Challenge.findOne({
+      where: {
+        challenge_id: challengeId,
+      },
+    });
+
+    if (!result) {
+      return res.status(400).json({ message: "challenge Not Found" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to read challenge" });
+  }
+}
+
 export async function readChallengeByChallengeIds(req: Request, res: Response) {
   try {
     const { email } = req.body;
