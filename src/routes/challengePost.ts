@@ -35,6 +35,6 @@ router.post(
   createChallengePost
 );
 
-router.delete("/:challengeId/delete-post/:postId", deleteChallengePost);
+router.delete("/del-post/:postId/:email", deleteChallengePost);
 
 export default router;

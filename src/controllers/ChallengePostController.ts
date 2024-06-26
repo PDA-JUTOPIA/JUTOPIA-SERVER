@@ -3,6 +3,7 @@ import { ChallengePost } from "../models/challengePost";
 import { PostPhoto } from "../models/postPhoto";
 import { ChallengeParticipation } from "../models/challengeParticipation";
 import { sequelize } from "../models";
+import { getUserIdByEmail } from "./UserController"; // 사용자 이메일을 통해 user_id를 찾는 함수 import
 
 export const setChallengePostDirectory = (
   req: Request,
@@ -102,7 +103,40 @@ export async function createChallengePost(req: Request, res: Response) {
 // 포스팅 삭제 API 엔드포인트
 export async function deleteChallengePost(req: Request, res: Response) {
   try {
-    const { postId } = req.params;
+    const { postId, email } = req.params; // email 추가
+    console.log("Post ID:", postId);
+    console.log("User Email:", email);
+
+    // email을 통해 userId 가져오기
+    const userId = await getUserIdByEmail(email);
+    if (!userId) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // postId를 통해 해당 post의 challengeParticipation id를 가져오기
+    const post = await ChallengePost.findByPk(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Challenge post not found" });
+    }
+
+    const challengeParticipationId = post.challenge_participation_id;
+
+    // challengeParticipation id를 통해 userId 가져오기
+    const participation = await ChallengeParticipation.findByPk(
+      challengeParticipationId
+    );
+    if (!participation) {
+      return res
+        .status(404)
+        .json({ message: "Challenge participation not found" });
+    }
+
+    // 1번과 3번에서의 UserID가 일치하는지 확인
+    if (participation.user_id !== userId) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this post" });
+    }
 
     // 트랜잭션 시작
     const transaction = await sequelize.transaction();
