@@ -19,21 +19,33 @@ export const setChallengePostDirectory = (
 export async function createChallengePost(req: Request, res: Response) {
   console.log("test");
   try {
-    const { challenge_post_text, challenge_participation_id } = req.body;
+    const { challenge_post_text, challenge_id, email } = req.body;
     console.log("Challenge Post Text:", challenge_post_text);
-    console.log("Challenge Participation ID:", challenge_participation_id);
+    console.log("Challenge ID:", challenge_id);
+    console.log("User Email:", email);
 
-    // challenge_participation_id가 유효한지 확인
-    const participation = await ChallengeParticipation.findByPk(
-      challenge_participation_id
-    );
-    console.log("Challenge Participation:", participation);
+    // email을 통해 userId 가져오기
+    const userId = await getUserIdByEmail(email);
+    if (!userId) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // challengeId와 userId를 통해 challenge participation id 조회
+    const participation = await ChallengeParticipation.findOne({
+      where: {
+        challenge_id: challenge_id,
+        user_id: userId,
+      },
+      attributes: ["challenge_participation_id"],
+    });
 
     if (!participation) {
       return res
-        .status(404)
-        .json({ message: "Challenge participation not found" });
+        .status(403)
+        .json({ message: "Unauthorized to create post for this challenge" });
     }
+
+    const challengeParticipationId = participation.challenge_participation_id;
 
     // 트랜잭션 시작
     const transaction = await sequelize.transaction();
@@ -43,7 +55,7 @@ export async function createChallengePost(req: Request, res: Response) {
       const challengePost = await ChallengePost.create(
         {
           challenge_post_text,
-          challenge_participation_id,
+          challenge_participation_id: challengeParticipationId,
         },
         { transaction }
       );
