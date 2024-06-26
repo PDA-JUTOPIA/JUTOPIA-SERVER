@@ -4,6 +4,7 @@ import {
   Table,
   DataType,
   ForeignKey,
+  Default,
 } from "sequelize-typescript";
 import { User } from "./user";
 import { ChallengePost } from "./challengePost";
@@ -29,6 +30,7 @@ export class ChallengePostComment extends Model {
   @Column({
     type: DataType.DATE,
     allowNull: false,
+    defaultValue: DataType.NOW,
   })
   challenge_post_comment_date!: Date;
 
