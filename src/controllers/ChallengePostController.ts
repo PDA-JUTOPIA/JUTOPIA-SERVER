@@ -227,7 +227,7 @@ export async function deleteChallengePost(req: Request, res: Response) {
   }
 }
 
-// 개인이 작성한 포스트 ID 조회 API 엔드포인트
+// 개인이 작성한 포스트 조회 API 엔드포인트
 export async function getPostIdsByEmailAndChallenge(
   req: Request,
   res: Response
@@ -273,10 +273,38 @@ export async function getPostIdsByEmailAndChallenge(
       order: [["createdAt", "DESC"]],
     });
 
+    const postIds = posts.map((post) => post.challenge_post_id);
+
+    // 각 포스트의 challenge_post_id 값에 해당하는 모든 포스트 이미지 URL을 가져옴
+    const photos = await PostPhoto.findAll({
+      where: {
+        challenge_post_id: {
+          [Op.in]: postIds, // Op.in을 사용하여 배열 형태로 전달
+        },
+      },
+      attributes: ["challenge_post_id", "post_photo_url"],
+    });
+
+    const postsWithUserInfo = await Promise.all(
+      posts.map(async (post) => {
+        const userName = await getUsernameById(userId);
+        const imageURL = photos
+          .filter((photo) => photo.challenge_post_id === post.challenge_post_id)
+          .map((photo) => photo.post_photo_url);
+
+        return {
+          challenge_post_id: post.challenge_post_id,
+          challenge_post_text: post.challenge_post_text,
+          challenge_post_date: post.challenge_post_date,
+          userName,
+          imageURL,
+        };
+      })
+    );
+
     res.status(200).json({
       message: "Post IDs retrieved successfully",
-      posts: posts,
-      //이름 추가
+      posts: postsWithUserInfo,
     });
   } catch (error) {
     if (error instanceof Error) {
