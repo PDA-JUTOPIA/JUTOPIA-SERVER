@@ -5,6 +5,7 @@ import {
   readSinceJoinDate,
   updateUsername,
   getUserId,
+  getUserLearningStatus,
 } from "../controllers/UserController";
 const router = Router();
 
@@ -18,5 +19,6 @@ router.post("/login", loginUser);
 router.get("/days/email/:email", readSinceJoinDate);
 router.put("/updateName", updateUsername);
 router.post("/user-id", getUserId);
+router.post("/get-user-learning-status", getUserLearningStatus);
 
 export default router;
