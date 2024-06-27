@@ -154,3 +154,37 @@ export async function getParticipationIdByChallengeId(
     (participation) => participation.challenge_participation_id
   );
 }
+
+// user_id 를 통해 challenge_participation_count 더하기 => integer 리턴
+export async function getParicipationCountByEmail(req: Request, res: Response) {
+  try {
+    const { email } = req.params;
+    if (typeof email !== "string") {
+      return res.status(400).json({ error: "Invalid email parameter" });
+    }
+
+    const userId = await getUserIdByEmail(email);
+
+    if (!userId) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const challenges = await ChallengeParticipation.findAll({
+      where: { user_id: userId },
+      attributes: ["challenge_participation_count"],
+    });
+
+    const totalParticipationCount = challenges
+      .map((challenge) => challenge.challenge_participation_count)
+      .reduce((acc, count) => acc + count, 0);
+
+    console.log(totalParticipationCount);
+    return res.status(200).json({ totalParticipationCount });
+  } catch (error) {
+    console.error("Error:", error); // 상세 오류 메시지를 로그로 출력합니다.
+    return res.status(500).json({
+      error: "Failed to fetch totalParticipationCount",
+      details: (error as any).message,
+    });
+  }
+}
