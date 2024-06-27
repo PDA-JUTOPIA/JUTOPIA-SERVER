@@ -313,15 +313,19 @@ export async function getPostIdsByChallengeId(req: Request, res: Response) {
       where: {
         challenge_participation_id: challengeParticipationIds,
       },
-      attributes: ["challenge_post_id"],
+      attributes: [
+        "challenge_post_id",
+        "challenge_post_text",
+        "challenge_post_date",
+      ],
       order: [["createdAt", "DESC"]],
     });
 
-    const postIds = posts.map((post) => post.challenge_post_id);
+    // const postIds = posts.map((post) => post.challenge_post_id);
 
     res.status(200).json({
       message: "Post IDs retrieved successfully",
-      postIds: postIds,
+      posts: posts,
     });
   } catch (error) {
     if (error instanceof Error) {
