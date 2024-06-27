@@ -2,6 +2,10 @@ import { Request, Response, response } from "express";
 import { User } from "../models/user";
 import { UserCurrentLearning } from "../models/userCurrentLearning";
 import { createToken, verifyToken } from "../utils/auth";
+import { ChallengeParticipation } from "../models/challengeParticipation";
+import { ChallengePost } from "../models/challengePost";
+import { Op } from "sequelize";
+
 import bcrypt from "bcryptjs";
 
 export async function createUser(req: Request, res: Response) {
@@ -236,4 +240,100 @@ export async function getUserLearningStatus(req: Request, res: Response) {
 // User 테이블에서 유저 email을 통해 userid를 조회하고, userID로 challenge participation id를 조회한 뒤
 // challenge 테이블에서 user의 participation 페이지가 일치하는 행을 찾아서 등록일을 받아와서
 // 주마다 일요일에서 토요일에 등록일이 잇는지 조회한 후 [일요일, 월요일, 화요일,  수요일, 목요일, 금요일, 토요일] 배열에 True False 값을 먹여서 반환하기
-// 근데
+function getStartOfWeek(date: Date): Date {
+  const startOfWeek = new Date(date);
+  const day = startOfWeek.getDay();
+  const diff = startOfWeek.getDate() - day; // Adjust to Sunday
+  startOfWeek.setDate(diff);
+  startOfWeek.setHours(0, 0, 0, 0);
+  return startOfWeek;
+}
+
+function getEndOfWeek(date: Date): Date {
+  const endOfWeek = new Date(date);
+  const startOfWeek = getStartOfWeek(date);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
+  return endOfWeek;
+}
+
+export async function getPostIdsByEmailAndChallenge(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { email } = req.body; // email을 body에서 가져옴
+    console.log("User Email:", email);
+
+    // email을 통해 userId 가져오기
+    const userId = await getUserIdByEmail(email);
+    console.log("User ID:", userId);
+    if (!userId) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // challengeId와 userId를 통해 challenge participation id 조회
+    const participation = await ChallengeParticipation.findOne({
+      where: {
+        user_id: userId,
+      },
+      attributes: ["challenge_participation_id"],
+    });
+    console.log("Participation:", participation);
+
+    if (!participation) {
+      return res
+        .status(404)
+        .json({ message: "Challenge participation not found" });
+    }
+
+    const challengeParticipationId = participation.challenge_participation_id;
+    console.log("Challenge Participation ID:", challengeParticipationId);
+
+    // 현재 주의 시작과 끝 날짜 계산
+    const today = new Date();
+    const startOfWeek = getStartOfWeek(today);
+    const endOfWeek = getEndOfWeek(today);
+    console.log("Start of Week:", startOfWeek);
+    console.log("End of Week:", endOfWeek);
+
+    // CHALLENGE_POST 테이블에서 현재 주의 시작과 끝 날짜 사이에 있는 모든 행 조회 (createdAt 순으로 내림차순 정렬)
+    const posts = await ChallengePost.findAll({
+      where: {
+        challenge_participation_id: challengeParticipationId,
+        challenge_post_date: {
+          [Op.between]: [startOfWeek, endOfWeek],
+        },
+      },
+      attributes: ["challenge_post_date"],
+      order: [["challenge_post_date", "DESC"]],
+    });
+    console.log("Posts:", posts);
+
+    // 주마다 일요일에서 토요일에 등록일이 있는지 확인
+    const weekDays = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const postDates = posts.map((post) => new Date(post.challenge_post_date));
+    console.log("Post Dates:", postDates);
+
+    const result = weekDays.map((day, index) => {
+      return postDates.some((date) => date.getDay() === index);
+    });
+
+    console.log("Result:", result);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error:", error); // 상세 오류 메시지를 로그로 출력합니다.
+    res.status(500).json({
+      error: "Failed to fetch user learning status",
+      details: (error as any).message,
+    });
+  }
+}
