@@ -3,8 +3,9 @@ import { ChallengePost } from "../models/challengePost";
 import { PostPhoto } from "../models/postPhoto";
 import { ChallengeParticipation } from "../models/challengeParticipation";
 import { sequelize } from "../models";
-import { getUserIdByEmail } from "./UserController"; // 사용자 이메일을 통해 user_id를 찾는 함수 import
+import { getUserIdByEmail, getUsernameById } from "./UserController"; // 사용자 이메일을 통해 user_id를 찾는 함수 import
 import { getParticipationIdByChallengeId } from "./ChallengeParticipation";
+import { Op } from "sequelize";
 
 export const setChallengePostDirectory = (
   req: Request,
@@ -264,15 +265,18 @@ export async function getPostIdsByEmailAndChallenge(
       where: {
         challenge_participation_id: challengeParticipationId,
       },
-      attributes: ["challenge_post_id"],
+      attributes: [
+        "challenge_post_id",
+        "challenge_post_text",
+        "challenge_post_date",
+      ],
       order: [["createdAt", "DESC"]],
     });
 
-    const postIds = posts.map((post) => post.challenge_post_id);
-
     res.status(200).json({
       message: "Post IDs retrieved successfully",
-      postIds: postIds,
+      posts: posts,
+      //이름 추가
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -291,7 +295,7 @@ export async function getPostIdsByEmailAndChallenge(
   }
 }
 
-// 챌린지에 있는 전체 포스트 ID 조회하는 API 엔드포인트
+// 챌린지에 있는 전체 포스트 조회하는 API 엔드포인트
 export async function getPostIdsByChallengeId(req: Request, res: Response) {
   try {
     const { challenge_id } = req.params;
@@ -313,15 +317,66 @@ export async function getPostIdsByChallengeId(req: Request, res: Response) {
       where: {
         challenge_participation_id: challengeParticipationIds,
       },
-      attributes: ["challenge_post_id"],
+      attributes: [
+        "challenge_post_id",
+        "challenge_post_text",
+        "challenge_post_date",
+      ],
       order: [["createdAt", "DESC"]],
     });
 
     const postIds = posts.map((post) => post.challenge_post_id);
 
+    const participations = await ChallengeParticipation.findAll({
+      where: {
+        challenge_participation_id: {
+          [Op.in]: challengeParticipationIds, // Op.in을 사용하여 배열 형태로 전달
+        },
+      },
+      attributes: ["user_id"],
+    });
+
+    // challengeParticipationIds 배열에 해당하는 모든 포스트 이미지 URL을 가져옴
+    const photos = await PostPhoto.findAll({
+      where: {
+        challenge_post_id: {
+          [Op.in]: postIds, // Op.in을 사용하여 배열 형태로 전달
+        },
+      },
+      attributes: ["challenge_post_id", "post_photo_url"],
+    });
+
+    const postsWithUserInfo = await Promise.all(
+      posts.map(async (post) => {
+        const userId = participations.find(
+          (p) =>
+            p.challenge_participation_id === post.challenge_participation_id
+        )?.user_id;
+
+        if (!userId) {
+          throw new Error(
+            `User ID not found for participation ID ${post.challenge_post_id}`
+          );
+        }
+
+        const userName = await getUsernameById(userId);
+        const imageURL = photos
+          .filter((photo) => photo.challenge_post_id === post.challenge_post_id)
+          .map((photo) => photo.post_photo_url);
+
+        return {
+          challenge_post_id: post.challenge_post_id,
+          challenge_post_text: post.challenge_post_text,
+          challenge_post_date: post.challenge_post_date,
+          userName,
+          imageURL,
+        };
+      })
+    );
+
     res.status(200).json({
       message: "Post IDs retrieved successfully",
-      postIds: postIds,
+      posts: postsWithUserInfo,
     });
   } catch (error) {
     if (error instanceof Error) {

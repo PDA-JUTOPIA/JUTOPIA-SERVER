@@ -25,7 +25,6 @@ router.post(
     console.log("Uploading image");
     imageUploader.array("challenge_thumbnail")(req, res, (err: any) => {
       if (err) {
-        console.error("Error uploading image:", err);
         return res.status(500).send("Error uploading image: " + err);
       }
       next();

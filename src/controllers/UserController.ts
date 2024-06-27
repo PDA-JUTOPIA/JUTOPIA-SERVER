@@ -130,6 +130,21 @@ async function getUserIdByEmail(email: string): Promise<number | null> {
     throw error;
   }
 }
+export async function getUsernameById(userId: number) {
+  try {
+    const user = await User.findOne({
+      where: { user_id: userId },
+    });
+    if (user) {
+      return user.username;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user by email:", error);
+    throw error;
+  }
+}
 
 // 이메일로 사용자 ID 조회
 export async function getUserId(req: Request, res: Response) {
