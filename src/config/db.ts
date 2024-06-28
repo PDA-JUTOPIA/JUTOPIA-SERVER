@@ -11,6 +11,14 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST as string,
     dialect: "mysql",
     port: parseInt(process.env.DB_PORT as string, 10),
+
+    dialectOptions: {
+      // useUTC: false, //for reading from database
+      dateStrings: true,
+      typeCast: true,
+      timezone: "Asia/Seoul",
+    },
+    timezone: "Asia/Seoul", //for writing to database
   }
 );
 
