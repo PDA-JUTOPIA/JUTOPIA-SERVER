@@ -20,8 +20,10 @@ export async function createUserReward(req: Request, res: Response) {
     reward_id: reward_id + 1,
     user_id: existingUser.user_id,
   });
-
-  return userReward;
+  return res.status(200).json({
+    userReward: userReward,
+  });
+  // return userReward;
 }
 
 export async function readUserReward(req: Request, res: Response) {
