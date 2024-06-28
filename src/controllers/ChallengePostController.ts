@@ -349,6 +349,7 @@ export async function getPostIdsByChallengeId(req: Request, res: Response) {
         "challenge_post_id",
         "challenge_post_text",
         "challenge_post_date",
+        "challenge_participation_id",
       ],
       order: [["createdAt", "DESC"]],
     });
@@ -361,7 +362,7 @@ export async function getPostIdsByChallengeId(req: Request, res: Response) {
           [Op.in]: challengeParticipationIds, // Op.in을 사용하여 배열 형태로 전달
         },
       },
-      attributes: ["user_id"],
+      attributes: ["challenge_participation_id", "user_id"],
     });
 
     // challengeParticipationIds 배열에 해당하는 모든 포스트 이미지 URL을 가져옴
