@@ -88,7 +88,6 @@ export async function getParticipationId(req: Request, res: Response) {
     const userId = await getUserIdByEmail(email);
     console.log(`${userId}  ${email}   ${challenge_id}`);
     if (!userId) {
-      console.log;
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -143,20 +142,28 @@ export async function getUserIdByParticipationId(req: Request, res: Response) {
 export async function getParticipationIdByChallengeId(
   challenge_id: number
 ): Promise<number[]> {
-  const participations = await ChallengeParticipation.findAll({
-    where: {
-      challenge_id: challenge_id,
-    },
-    attributes: ["challenge_participation_id"],
-  });
+  try {
+    const participations = await ChallengeParticipation.findAll({
+      where: {
+        challenge_id: challenge_id,
+      },
+      attributes: ["challenge_participation_id"],
+    });
 
-  return participations.map(
-    (participation) => participation.challenge_participation_id
-  );
+    return participations.map(
+      (participation) => participation.challenge_participation_id
+    );
+  } catch (error) {
+    console.error("Error:", error);
+    throw new Error("Failed to fetch participation IDs by challenge ID");
+  }
 }
 
-// user_id 를 통해 challenge_participation_count 더하기 => integer 리턴
-export async function getParicipationCountByEmail(req: Request, res: Response) {
+// user_id를 통해 challenge_participation_count 더하기 => integer 리턴
+export async function getParticipationCountByEmail(
+  req: Request,
+  res: Response
+) {
   try {
     const { email } = req.params;
     if (typeof email !== "string") {
@@ -174,9 +181,12 @@ export async function getParicipationCountByEmail(req: Request, res: Response) {
       attributes: ["challenge_participation_count"],
     });
 
-    const totalParticipationCount = challenges
-      .map((challenge) => challenge.challenge_participation_count)
-      .reduce((acc, count) => acc + count, 0);
+    let totalParticipationCount = 0;
+    if (challenges.length > 0) {
+      totalParticipationCount = challenges
+        .map((challenge) => challenge.challenge_participation_count)
+        .reduce((acc, count) => acc + count, 0);
+    }
 
     console.log(totalParticipationCount);
     return res.status(200).json({ totalParticipationCount });

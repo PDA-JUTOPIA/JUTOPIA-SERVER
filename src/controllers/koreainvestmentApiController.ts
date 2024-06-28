@@ -12,7 +12,7 @@ const instance = axios.create({
 
 const appKey = process.env.KOREAINVESTMENT_APP_KEY as string;
 const appSecret = process.env.KOREAINVESTMENT_APP_SECRET as string;
-const authorization = fs.readFileSync("./token.dat", "utf-8");
+const authorization = fs.readFileSync("./token.dat", "utf-8").trim();
 
 if (!appKey) {
   throw new Error(
@@ -93,7 +93,7 @@ export const getDomesticStock = async (
   };
 
   fetchData();
-  const intervalId = setInterval(fetchData, 3000);
+  const intervalId = setInterval(fetchData, 1000);
   req.on("close", () => clearInterval(intervalId));
 };
 
